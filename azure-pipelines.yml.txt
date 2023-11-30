@@ -1,0 +1,26 @@
+trigger:
+- main
+
+pool:
+  name: 'LAB4-WINDOWS'
+
+jobs:
+- job: Build
+  steps:
+  - script: dotnet build --configuration Release
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'pack'
+      packagesToPack: '**/*.csproj'
+      versioningScheme: 'off'
+      includeSymbols: true
+
+- job: Publish
+  steps:
+  - task: NuGetAuthenticate@0
+  - task: NuGetCommand@2
+    inputs:
+      command: 'push'
+      packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+      nuGetFeedType: 'internal'
+      publishVstsFeed: '<Your-Azure-DevOps-Feed-Name>'
